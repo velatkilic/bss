@@ -75,7 +75,8 @@ plt.plot(t,m10,t,m01,t,mn10,t,m0n1)
 
 
 # Calculate xi
-x00 = (m10 + m01 + mn10 + m0n1)/4.
+avg = (m10 + m01 + mn10 + m0n1)/4
+x00 = np.append((avg[0:N-1] - avg[1:N]),0)*1e3
 x10 = 100*(m10 - mn10)/2. # 100 to convert from cm^-1 to m^-1
 x01 = 100*(m01 - m0n1)/2.
 
@@ -85,9 +86,10 @@ plt.plot(t,x10,t,x01)
 # Perform ICA
 from sklearn.decomposition import FastICA
 
-X = np.zeros((N,2)) # 2 measurements, N samples
-X[:,0] = x10
-X[:,1] = x01
+X = np.zeros((N,3)) # 2 measurements, N samples
+X[:,0] = x00
+X[:,1] = x10
+X[:,2] = x01
 
 ica = FastICA(n_components=2, random_state=0)
 S = ica.fit_transform(X)  # Reconstruct signals
@@ -117,4 +119,21 @@ plt.plot(t,s1gt,t,s2gt)
 
 # From A matrix convert tau to r1 and r2
 R = A/cs
+
+# direction cosines
+dCos1 = R[:,0]/R[0,0]
+dCos2 = R[:,1]/R[0,1]
+
+# azimuth angle
+theta_pred1 = np.arctan2(dCos1[1],dCos1[2])
+theta_pred2 = np.arctan2(dCos2[1],dCos2[2])
+
+print("Predicted: " + str(theta_pred1) + " Actual: " + str(theta1))
+print("Predicted: " + str(theta_pred2) + " Actual: " + str(theta2))
+
+
+
+
+
+
 
