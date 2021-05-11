@@ -8,18 +8,24 @@
 
 struct ImgProp ip;
 
+#define Nthreads 512
+#define Nblocks 512
+
 int main() {
 	// read image data
-	unsigned char** lenna = ReadBMP("lenna.bmp");
-	unsigned char** baboo = ReadBMP("baboon.bmp");
+	unsigned char** h_lenna = ReadBMP("lenna.bmp");
+	unsigned char** h_baboo = ReadBMP("baboon.bmp");
 
 	// Create measurements
-	float** m1 = create_meas(lenna, baboo, 0.6, 0.4);
-	float** m2 = create_meas(lenna, baboo, 0.4, 0.6);
+	float** h_m1 = create_meas(lenna, baboo, 0.6, 0.4);
+	float** h_m2 = create_meas(lenna, baboo, 0.4, 0.6);
+
+	// copy measurements to gpu
+	cudaMalloc(
 
 	// convert results to unsigned char
-	unsigned char** tst1 = float2char(m1);
-	unsigned char** tst2 = float2char(m2);
+	unsigned char** tst1 = float2char(h_m1);
+	unsigned char** tst2 = float2char(h_m2);
 
 	// write to BMP
 	WriteBMP(tst1 , "m1.bmp");

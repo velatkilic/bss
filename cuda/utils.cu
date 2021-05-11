@@ -4,7 +4,7 @@
 #include "ImageStuff.h"
 struct ImgProp ip;
 
-// allocate 2D float memory
+// allocate 2D float memory on host
 float** dalloc() {
 	float** output = (float**) malloc(ip.Vpixels * sizeof(float*));
 	for(int i=0; i<ip.Vpixels; i++) {
@@ -13,6 +13,17 @@ float** dalloc() {
 	return output;
 }
 
+// allocate 2D float memory on device
+float** cu_dalloc() {
+	float** output;
+	cudaMalloc( (void **) output, ip.Vpixels * sizeof(float*));
+	for(int i=0; i<ip.Vpixels; i++) {
+		cudaMalloc((void *) output[i], ip.Hbytes * sizeof(float));
+	}
+	return output;
+}
+
+// Free host memory
 void dfree(float** inp) {
 	for(int i=0; i<ip.Vpixels; i++) {
 		free(inp[i]);
@@ -20,7 +31,16 @@ void dfree(float** inp) {
 	free(inp);
 }
 
+// free device memory
+void cu_dfree(float** inp) {
+	for(int i=0; i<ip.Vpixels; i++) {
+		cudaFree(inp[i]);
+	}
+	cudaFree(inp);
+}
+
 // create 2 measurements from given mixing values a_i and input images inp_i
+// just host version is needed
 float** create_meas(unsigned char** inp1, unsigned char** inp2, float a1, float a2) {
 	// allocate memory
 	float** output = dalloc();
@@ -37,6 +57,18 @@ float** create_meas(unsigned char** inp1, unsigned char** inp2, float a1, float 
 
 // calculate the mean of the float 2D array
 float calc_mean(float ** m) {
+	float out = 0;
+	for (int i = 0; i<ip.Vpixels; i++) {
+		for (int j=0; j<ip.Hbytes; j++) {
+			out += m[i][j];
+		}
+	}
+
+	return out/(ip.Hbytes * ip.Vpixels);
+}
+
+// cuda mean
+__global__ float cu_calc_mean(float ** m) {
 	float out = 0;
 	for (int i = 0; i<ip.Vpixels; i++) {
 		for (int j=0; j<ip.Hbytes; j++) {
