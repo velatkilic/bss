@@ -2,11 +2,10 @@
 
 // clear contents of the class
 void BmpImage::clear() {
-	cudaDeviceSynchronize();
 	cudaFree(imgdata);
 
 	Hpixels=0; Vpixels=0; length=0;
-	HeaderInfo.clear();
+	// HeaderInfo.clear();
 }
 
 // deep copy constructor
@@ -21,9 +20,9 @@ BmpImage::BmpImage(const BmpImage& img) {
 	HeaderInfo = img.HeaderInfo;
 	length     = img.length;
 
+	imgdata = new char;
 	cudaMallocManaged(&imgdata, length);
 	memcpy(imgdata, img.imgdata, length);
-
 }
 
 // deep assignment
@@ -38,6 +37,7 @@ BmpImage& BmpImage::operator=(const BmpImage& img) {
 		HeaderInfo = img.HeaderInfo;
 		length     = img.length;
 
+		imgdata = new char;
 		cudaMallocManaged(&imgdata, length);
 		memcpy(imgdata, img.imgdata, length);
 	}
@@ -56,7 +56,7 @@ void BmpImage::readBmp(const std::string fname) {
 
 	// read header info: 54 chars
 	for (int i=0; i<54; i++) {
-		HeaderInfo[i] = file.get();
+		HeaderInfo.push_back(file.get());
 	}
 
 	// from Tolga's book:
@@ -87,12 +87,10 @@ void BmpImage::writeBmp(const std::string fname) const {
 	if (!file.is_open()) {
 		std::cout << "Error: failed to open " << fname << std::endl;
 	}
-
 	// write header info: 54 chars
 	for (int i=0; i<54; i++) {
-		file.put(HeaderInfo[i]);
+		file.put(HeaderInfo.at(i));
 	}
-
 	// write image data
 	for (int i=0; i<length; i++) {
 		file.put(imgdata[i]);
@@ -106,7 +104,7 @@ void BmpImage::writeBmp(const std::string fname) const {
 BmpImage& BmpImage::operator*(const float c) {
 	float dmmy;
 	for (int i=0; i<length; i++) {
-		dmmy = (this->imgdata)[i] * c;
+		dmmy = ((float) this->imgdata[i]) * c;
 		(this->imgdata)[i] = (char) dmmy;
 	}
 

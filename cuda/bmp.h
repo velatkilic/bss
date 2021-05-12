@@ -7,29 +7,15 @@
 #include <vector>
 #include "managed.h"
 
-// umString class extends cuda managed memory class
-class umString: public Managed {
-	public:
-		int length;
-		char *data;
-
-		umString(): length(0) {data=nullptr;}
-		umString(int length): length(length) {cudaMallocManaged(&data,length);}
-		umString(const umString &s) {
-			length = s.length;
-			cudaMallocManaged(&data,length);
-			memcpy(data,s.data,length);
-		}
-};
-
+// Bitmap image class extends cuda managed memory class
 class BmpImage: public Managed {
 	public:
-		umString imgdata;
+		char* imgdata;
 		int Hpixels, Vpixels, length;
 		std::vector<char> HeaderInfo;
 
 		// constructors
-		BmpImage(): Hpixels(0), Vpixels(0), length(0), HeaderInfo(), imgdata() {}
+		BmpImage(): Hpixels(0), Vpixels(0), length(0), HeaderInfo(), imgdata(nullptr) {}
 		BmpImage(std::string fname){
 			Hpixels=0; Vpixels=0; length=0;
 			HeaderInfo.reserve(54);
