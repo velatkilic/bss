@@ -10,4 +10,4 @@ bmp.o: bmp.h bmp.cu managed.h
 	$(GCC) -c bmp.cu
 
 clean:
-	rm -rf *.o main
+	rm -rf *.o main m1.bmp m2.bmp
