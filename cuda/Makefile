@@ -1,16 +1,13 @@
 GCC=nvcc
 
-main: ImageStuff.o main.o utils.o
-	$(GCC) -o main main.o ImageStuff.o utils.o -lm
+main: bmp.o main.o
+	$(GCC) -o main main.o bmp.o
 
-main.o: ImageStuff.h main.c
-	$(GCC) -c main.c  
+main.o: managed.h main.cu
+	$(GCC) -c main.cu
 
-utils.o: utils.h utils.c ImageStuff.h
-	$(GCC) -c utils.c  
-
-ImageStuff.o: ImageStuff.h ImageStuff.c
-	$(GCC) -c ImageStuff.c  
+bmp.o: bmp.h bmp.cu managed.h
+	$(GCC) -c bmp.cu
 
 clean:
-	rm -rf *.o main out1.bmp out2.bmp m1.bmp m2.bmp
+	rm -rf *.o main
