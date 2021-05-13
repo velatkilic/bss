@@ -1,29 +1,26 @@
 #include "utils.h"
 
-__global__ void cu_sum_atomic(const BmpImage& img, float* res) {
+__global__
+void cu_calc_update(const float* img1, const float* img2, float* out, int N) {
 	int idx = threadIdx.x + blockDim.x * blockIdx.x; 
-	// atomic add prevents simultan. read/write for res
-	if (idx < img.length) atomicAdd(res,img.imgdata[idx]);
+	if (idx < N)
+		out[idx] = powf(img1[idx],3) * atanf(img2[idx]);
 }
 
-// subtract the mean
-__global__ void demean(BmpImage& img, float* mu) {
-	int idx = threadIdx.x + blockDim.x * blockIdx.x; 
-	if (idx < img.length) img.imgdata[idx] = img.imgdata[idx] - (*mu);
-}
-
-
-__global__ void cu_calc_update(const BmpImage& img1, const BmpImage& img2, BmpImage& out) {
-	int idx = threadIdx.x + blockDim.x * blockIdx.x; 
-	if (idx < img1.length)
-		out.imgdata[idx] = powf(img1.imgdata[idx],3) * atanf(img2.imgdata[idx]);
-}
-
-__global__ void cu_update_once(const BmpImage& img1, const BmpImage& img2, BmpImage& out1, BmpImage& out2, float& c12, float& c21) {
+__global__
+void cu_update_once(const float* img1, const float* img2, float* out1, float* out2, float c12, float c21, int N) {
 	int idx = threadIdx.x + blockDim.x * blockIdx.x;
 	float den = 1.0 - c12*c21;
-	if (idx < img1.length) {
-		out1.imgdata[idx] = (img1.imgdata[idx] - c12*img2.imgdata[idx])/den;
-		out2.imgdata[idx] = (img2.imgdata[idx] - c21*img1.imgdata[idx])/den;
+	if (idx < N) {
+		out1[idx] = (img1[idx] - c12*img2[idx])/den;
+		out2[idx] = (img2[idx] - c21*img1[idx])/den;
 	}
+}
+
+float calc_mean(float * dat, int N) {
+	float out = 0;
+	for (int i=0; i<N; i++) {
+		out += dat[i];
+	}
+	return out/N;
 }

@@ -37,12 +37,15 @@ class BmpImage {
 		void demean();
 		void writeBmp(const std::string fname) const;
 		void clear();
+		void setData(float* dat, int N);
 
-		BmpImage& operator*(const float c);
-		BmpImage& operator+(const BmpImage& img);
+		friend BmpImage create_meas(const BmpImage& img1, const BmpImage& img2, float c);
+
 	private:
 		char* normalize(void) const; // because needs memory management
 
 };
+
+BmpImage create_meas(const BmpImage& img1, const BmpImage& img2, float c);
 
 #endif

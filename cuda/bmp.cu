@@ -2,27 +2,23 @@
 
 // clear contents of the class
 void BmpImage::clear() {
-	cudaFree(imgdata);
-
+	delete [] imgdata;
 	Hpixels=0; Vpixels=0; length=0;
-	// HeaderInfo.clear();
+	HeaderInfo.clear();
 }
 
 // deep copy constructor
 BmpImage::BmpImage(const BmpImage& img) {
-
-	// clear previous data
-	this->clear();
-
+	
 	// copy values of the argument
 	Hpixels    = img.Hpixels;
 	Vpixels    = img.Vpixels;
 	HeaderInfo = img.HeaderInfo;
 	length     = img.length;
 
-	imgdata = new float;
-	cudaMallocManaged(&imgdata, length*sizeof(float));
-	memcpy(imgdata, img.imgdata, length*sizeof(float));
+	imgdata = new float[length];
+	for (int i=0; i<length; i++) imgdata[i] = img.imgdata[i];
+
 }
 
 // deep assignment
@@ -30,6 +26,8 @@ BmpImage& BmpImage::operator=(const BmpImage& img) {
 	if (this != &img) {
 		// clear previous data
 		this->clear();
+		imgdata = new float[length];
+		for (int i=0; i<length; i++) imgdata[i] = img.imgdata[i];
 
 		// copy values of the argument
 		Hpixels    = img.Hpixels;
@@ -37,9 +35,6 @@ BmpImage& BmpImage::operator=(const BmpImage& img) {
 		HeaderInfo = img.HeaderInfo;
 		length     = img.length;
 
-		imgdata = new float;
-		cudaMallocManaged(&imgdata, length*sizeof(float));
-		memcpy(imgdata, img.imgdata, length*sizeof(float));
 	}
 
 	return *this;
@@ -69,8 +64,8 @@ void BmpImage::readBmp(const std::string fname) {
 
 	length = RowBytes*Vpixels;
 
-	imgdata = new float;
-	cudaMallocManaged(&imgdata, length*sizeof(float));
+	imgdata = new float[length];
+
 	for (int i=0; i<length; i++) {
 		imgdata[i] = (float) file.get();
 	}
@@ -153,22 +148,24 @@ void BmpImage::writeBmp(const std::string fname) const {
 
 }
 
-// overload math operators
-BmpImage& BmpImage::operator*(const float c) {
-	for (int i=0; i<length; i++) {
-		imgdata[i] *= c;
-	}
-	return *this;
-}
-
-BmpImage& BmpImage::operator+(const BmpImage& img) {
-	if (length == img.length) {
+void BmpImage::setData(float* dat, int N) {
+	if (length==N) {
 		for (int i=0; i<length; i++) {
-			imgdata[i] += img.imgdata[i];
+			imgdata[i] = dat[i];
 		}
 	} else {
-		std::cout << "Error: image size must match" << std::endl;
+		std::cout << "error: data length not same" << std::endl;
+	}
+}
+
+BmpImage create_meas(const BmpImage& img1, const BmpImage& img2, float c) {
+	BmpImage out(img1);
+	float c2 = 1.0f - c;
+	if (img1.length == img2.length) {
+		for (int i=0; i<out.length; i++) out.imgdata[i] = c*img1.imgdata[i] + c2*img2.imgdata[i];
+	} else {
+		std::cout << "Error: lengths must be same" << std::endl;
 	}
 
-	return *this;
+	return out;
 }

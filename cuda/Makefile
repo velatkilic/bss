@@ -1,4 +1,4 @@
-GXX=nvcc
+GXX=nvcc -g
 
 analyze_main: main
 	cuda-memcheck ./main
@@ -13,7 +13,7 @@ main.o: utils.h bmp.h main.cu
 utils.o: bmp.h utils.h utils.cu
 	$(GXX) -c utils.cu
 
-bmp.o: bmp.h bmp.cu managed.h
+bmp.o: bmp.h bmp.cu
 	$(GXX) -c bmp.cu
 
 clean:

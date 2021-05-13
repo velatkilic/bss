@@ -3,10 +3,8 @@
 
 #include "bmp.h"
 
-__global__ void cu_sum_atomic(const BmpImage& img, float& res) ;
-__global__ void demean(BmpImage& img, float* mu);
-__global__ void cu_calc_update(const BmpImage& img1, const BmpImage& img2, BmpImage& out);
-__global__ void cu_update_once(const BmpImage& img1, const BmpImage& img2, BmpImage& out1, BmpImage& out2, float& c12, float& c21);
-
+__global__ void cu_calc_update(const float* img1, const float* img2, float* out, int N);
+__global__ void cu_update_once(const float* img1, const float* img2, float* out1, float* out2, float c12, float c21, int N);
+float calc_mean(float * dat, int N);
 
 #endif
