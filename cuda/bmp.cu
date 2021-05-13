@@ -67,7 +67,7 @@ void BmpImage::readBmp(const std::string fname) {
 	imgdata = new float[length];
 
 	for (int i=0; i<length; i++) {
-		imgdata[i] = (float) file.get();
+		imgdata[i] = ((float) file.get())/255.0f;
 	}
 
 	file.close();

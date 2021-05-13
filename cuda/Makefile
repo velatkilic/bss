@@ -1,8 +1,8 @@
-GXX=nvcc -g
+GXX=nvcc
 
 analyze_main: main
 	cuda-memcheck ./main
-	# nsys profile --stats=true ./main
+	nsys profile --stats=true ./main
 
 main: bmp.o main.o utils.o
 	$(GXX) -o main main.o bmp.o utils.o
@@ -17,4 +17,4 @@ bmp.o: bmp.h bmp.cu
 	$(GXX) -c bmp.cu
 
 clean:
-	rm -rf *.o main m1.bmp m2.bmp out1.bmp out2.bmp
+	rm -rf *.o main m1.bmp m2.bmp out1.bmp out2.bmp *.qdrep *.sqlite

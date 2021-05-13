@@ -46,7 +46,7 @@ int main() {
 	// demix loop
 	float * h_temp = new float[length];
 	float mu;
-	for (int i=0; i<1000; i++) {
+	for (int i=0; i<100; i++) {
 		cu_update_once<<<NBLOCKS,NTHREADS>>>(d_m1, d_m2, d_out1, d_out2, c12, c21, length);
 		cudaDeviceSynchronize();
 
@@ -56,12 +56,14 @@ int main() {
 		mu = calc_mean(h_temp, length);
 		c12 += lr*mu;
 
-		std::cout << "updated c12: " << c12 << std::endl;
-
 		cu_calc_update<<<NBLOCKS,NTHREADS>>>(d_m2, d_m1, d_temp, length);
 		cudaMemcpy(h_temp, d_temp, size, cudaMemcpyDeviceToHost);
 		mu = calc_mean(h_temp, length);
 		c21 += lr*mu;
+
+		if (i%50 ==0) {
+			std::cout << "Optimization step : " << i << std::endl;
+		}
 	}
 
 	// copy result back to cpu
