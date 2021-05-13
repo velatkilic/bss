@@ -5,10 +5,9 @@
 #include <string>
 #include <fstream>
 #include <vector>
-#include "managed.h"
 
-// Bitmap image class extends cuda managed memory class
-class BmpImage: public Managed {
+// Bitmap image class
+class BmpImage {
 	public:
 		float* imgdata;
 		int Hpixels, Vpixels, length;
@@ -32,12 +31,17 @@ class BmpImage: public Managed {
 
 		// member functions
 		void readBmp(const std::string fname);
-		char* normalize(void) const;
+		float calc_max() const;
+		float calc_min() const;
+		float calc_mean() const;
+		void demean();
 		void writeBmp(const std::string fname) const;
 		void clear();
 
 		BmpImage& operator*(const float c);
 		BmpImage& operator+(const BmpImage& img);
+	private:
+		char* normalize(void) const; // because needs memory management
 
 };
 

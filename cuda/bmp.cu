@@ -69,7 +69,8 @@ void BmpImage::readBmp(const std::string fname) {
 
 	length = RowBytes*Vpixels;
 
-	imgdata = new float[length];
+	imgdata = new float;
+	cudaMallocManaged(&imgdata, length*sizeof(float));
 	for (int i=0; i<length; i++) {
 		imgdata[i] = (float) file.get();
 	}
@@ -78,18 +79,59 @@ void BmpImage::readBmp(const std::string fname) {
 
 }
 
+// calculate max
+float BmpImage::calc_max() const {
+	float out = -10000;
+	for (int i = 0; i<length; i++) {
+		if (imgdata[i] > out) out = imgdata[i];
+	}
+
+	return out;
+}
+
+// calculate min
+float BmpImage::calc_min() const {
+	float out = 10000;
+	for (int i = 0; i<length; i++) {
+		if (imgdata[i] < out) out = imgdata[i];
+	}
+
+	return out;
+}
+
+// calculate min
+float BmpImage::calc_mean() const {
+	float out = 0.0f;
+	for (int i = 0; i<length; i++) {
+		out += imgdata[i];
+	}
+	out = out/length;
+	return out;
+}
+
+// subtract mean
+void BmpImage::demean() {
+	float mu = this->calc_mean();
+	for (int i = 0; i<length; i++) {
+		imgdata[i] -= mu;
+	}
+}
+
 // normalize float image data to [0 255]
 char* BmpImage::normalize(void) const {
+	float min = calc_min();
+	float max = calc_max();
+	float del = max - min;
 	char * out = new char[length];
+
 	for (int i=0; i<length; i++) {
-		out[i] = (char) imgdata[i];
+		out[i] = (char) (255.0f*(imgdata[i] - min)/del);
 	}
 	return out;
 }
 
 // read bitmap file
 void BmpImage::writeBmp(const std::string fname) const {
-	std::cout<< "Writing: Hpixels x Vpixels " << Hpixels << " x " << Vpixels << std::endl;
 	// open file for read
 	std::ofstream file;
 	file.open(fname);
