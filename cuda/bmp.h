@@ -10,7 +10,7 @@
 // Bitmap image class extends cuda managed memory class
 class BmpImage: public Managed {
 	public:
-		char* imgdata;
+		float* imgdata;
 		int Hpixels, Vpixels, length;
 		std::vector<char> HeaderInfo;
 
@@ -32,6 +32,7 @@ class BmpImage: public Managed {
 
 		// member functions
 		void readBmp(const std::string fname);
+		char* normalize(void) const;
 		void writeBmp(const std::string fname) const;
 		void clear();
 
