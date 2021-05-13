@@ -17,26 +17,3 @@ class Managed {
 		}
 
 };
-
-// // umString class extends cuda managed memory class
-// class umString: public Managed {
-// 	public:
-// 		int length;
-// 		char *data;
-
-// 		umString(): length(0) {data=nullptr;}
-// 		umString(int length): length(length) {cudaMallocManaged(&data,length);}
-// 		umString(const umString &s) {
-// 			length = s.length;
-// 			cudaMallocManaged(&data,length);
-// 			memcpy(data,s.data,length);
-// 		}
-// 		umString& operator=(const umString &s) {
-// 			if (this != &s) {
-// 				cudaFree(this->data);
-// 				(*this)(s);
-// 			}
-// 			return *this;
-// 		}
-// 		~umString() {cudaFree(data);}
-// };

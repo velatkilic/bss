@@ -1,13 +1,16 @@
-GCC=nvcc
+GXX=nvcc
 
 main: bmp.o main.o
-	$(GCC) -o main main.o bmp.o
+	$(GXX) -o main main.o bmp.o
 
-main.o: managed.h main.cu
-	$(GCC) -c main.cu
+main.o: utils.h bmp.h main.cu
+	$(GXX) -c main.cu
+
+utils.o: bmp.h utils.h utils.cu
+	$(GXX) -c utils.cu
 
 bmp.o: bmp.h bmp.cu managed.h
-	$(GCC) -c bmp.cu
+	$(GXX) -c bmp.cu
 
 clean:
 	rm -rf *.o main m1.bmp m2.bmp
