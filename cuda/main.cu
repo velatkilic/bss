@@ -46,17 +46,17 @@ int main() {
 	// demix loop
 	float * h_temp = new float[length];
 	float mu;
-	for (int i=0; i<100; i++) {
+	for (int i=0; i<1000; i++) {
 		cu_update_once<<<NBLOCKS,NTHREADS>>>(d_m1, d_m2, d_out1, d_out2, c12, c21, length);
 		cudaDeviceSynchronize();
 
 		// update c12
-		cu_calc_update<<<NBLOCKS,NTHREADS>>>(d_m1, d_m2, d_temp, length);
+		cu_calc_update<<<NBLOCKS,NTHREADS>>>(d_out1, d_out2, d_temp, length);
 		cudaMemcpy(h_temp, d_temp, size, cudaMemcpyDeviceToHost);
 		mu = calc_mean(h_temp, length);
 		c12 += lr*mu;
 
-		cu_calc_update<<<NBLOCKS,NTHREADS>>>(d_m2, d_m1, d_temp, length);
+		cu_calc_update<<<NBLOCKS,NTHREADS>>>(d_out2, d_out1, d_temp, length);
 		cudaMemcpy(h_temp, d_temp, size, cudaMemcpyDeviceToHost);
 		mu = calc_mean(h_temp, length);
 		c21 += lr*mu;
